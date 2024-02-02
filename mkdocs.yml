@@ -1,0 +1,11 @@
+site_name: napari-spotiflow
+site_description: Napari plugin for Spotiflow
+site_author: Albert Dominguez Mantes, Martin Weigert
+
+theme: readthedocs
+
+
+repo_url: https://github.com/weigertlab/napari-spotiflow
+
+pages:
+- Home: index.md

@@ -1,0 +1,30 @@
+name: napari-spotiflow
+display_name: napari-spotiflow
+contributions:
+  commands:
+    - id: napari-spotiflow.reader
+      python_name: napari_spotiflow._io_hooks:napari_get_reader
+      title: open csv data with napari-spotiflow   
+    - id: napari-spotiflow.widget
+      python_name: napari_spotiflow._dock_widget:plugin_wrapper
+      title: Spotiflow
+    - id: napari-spotiflow.data.hybiss_2d
+      title: HybISS (2D) sample
+      python_name: napari_spotiflow._sample_data:_test_image_hybiss_2d
+    - id: napari-spotiflow.data.terra_2d
+      title: Terra (2D) sample
+      python_name: napari_spotiflow._sample_data:_test_image_terra_2d
+  sample_data:
+    - key: hybiss
+      display_name: HybISS
+      command: napari-spotiflow.data.hybiss_2d
+    - key: terra
+      display_name: Terra
+      command: napari-spotiflow.data.terra_2d
+  readers:
+    - command: napari-spotiflow.reader
+      accepts_directories: false
+      filename_patterns: ["*.csv"]
+  widgets:
+    - command: napari-spotiflow.widget
+      display_name: Spotiflow widget
