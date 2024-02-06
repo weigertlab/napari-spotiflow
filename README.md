@@ -14,6 +14,7 @@ Napari plugin for *Spotiflow*, a deep learning-based, threshold-agnostic, and su
   
 https://github.com/weigertlab/napari-spotiflow/assets/11042162/02940480-daa9-4a21-8cf5-ad73c26c9838
 
+If you use this plugin for your research, please [cite us](https://github.com/weigertlab/spotiflow#Citation).
 
 ----------------------------------
 
@@ -25,14 +26,13 @@ https://github.com/weigertlab/napari-spotiflow/assets/11042162/02940480-daa9-4a2
 4. Click `run`
 
 ## Supported input formats
-- [x] 2D (YX or YXC)
-- [x] 2D+t (TYX or TYXC)
+- 2D (YX or YXC)
+- 2D+t (TYX or TYXC)
 
 ## Installation
 
-Clone the repo and install it in an environment with `napari` and `spotiflow`.
+The plugin can be installed directly from PyPi (make sure you use a conda environment with `napari` and `spotiflow` installed):
 
 ```
-git clone git@github.com:weigertlab/napari-spotiflow.git
-pip install -e napari-spotiflow
+pip install napari-spotiflow
 ```
