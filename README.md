@@ -12,7 +12,7 @@
 Napari plugin for *Spotiflow*, a deep learning-based, threshold-agnostic, and subpixel-accurate spot detection method for fluorescence microscopy. For the main repo, see [here](https://github.com/weigertlab/spotiflow). 
 
   
-https://github.com/weigertlab/napari-spotiflow/assets/11042162/99c09826-bda7-46bc-a9a8-6e0c52b3f9f1
+https://github.com/weigertlab/napari-spotiflow/assets/11042162/02940480-daa9-4a21-8cf5-ad73c26c9838
 
 
 ----------------------------------
