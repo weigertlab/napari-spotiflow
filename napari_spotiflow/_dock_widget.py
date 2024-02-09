@@ -6,6 +6,7 @@ import functools
 import time
 import numpy as np
 
+from copy import deepcopy
 from pathlib import Path
 from warnings import warn
 
@@ -14,6 +15,10 @@ from typing import List, Union
 from enum import Enum
 from psygnal import Signal
 
+from .utils import _prepare_input, _validate_axes
+
+BASE_IMAGE_AXES_CHOICES = ["YX", "YXC", "CYX", "TYX", "TYXC", "TCYX"]
+CURR_IMAGE_AXES_CHOICES = deepcopy(BASE_IMAGE_AXES_CHOICES)
 
 def abspath(root, relpath):
     from pathlib import Path
@@ -24,6 +29,8 @@ def abspath(root, relpath):
         path = root.parent/relpath
     return str(path.absolute())
 
+def get_image_axes_choices(image):
+    return CURR_IMAGE_AXES_CHOICES
 
 def change_handler(*widgets, init=True):
     """Implementation from https://github.com/stardist/stardist-napari/blob/main/stardist_napari/_dock_widget.py
@@ -69,6 +76,13 @@ def plugin_wrapper():
     CUSTOM_MODEL = 'CUSTOM_MODEL'
     model_type_choices = [('Pre-trained', Spotiflow), ('Custom', CUSTOM_MODEL)]
     peak_mode_choices = ["fast", "skimage"]
+    global CURR_IMAGE_AXES_CHOICES
+
+    image_layers = [l for l in napari.current_viewer().layers if isinstance(l, napari.layers.Image)]
+    if len(image_layers) > 0:
+        ndim_first = image_layers[0].data.ndim
+        CURR_IMAGE_AXES_CHOICES = [c for c in BASE_IMAGE_AXES_CHOICES if len(c) == ndim_first]
+
 
 
     @functools.lru_cache(maxsize=None)
@@ -108,11 +122,11 @@ def plugin_wrapper():
     @magicgui (
         label_head      = dict(widget_type='Label', label=f'<h1><img src="{logo}"></h1>'),
         image           = dict(label='Input Image'),
+        image_axes      = dict(widget_type='RadioButtons', label='Image axes order', orientation='horizontal', choices=get_image_axes_choices, value=CURR_IMAGE_AXES_CHOICES[0]),
         label_nn        = dict(widget_type='Label', label='<br><b>Neural Network Prediction:</b>'),
         model_type      = dict(widget_type='RadioButtons', label='Model Type', orientation='horizontal', choices=model_type_choices, value=DEFAULTS['model_type']),
         model2d         = dict(widget_type='ComboBox', visible=True, label='Pre-trained Model', choices=models_reg, value=DEFAULTS['model2d']),
         model_folder    = dict(widget_type='FileEdit', visible=True, label='Custom Model', mode='d'),
-        mode            = dict(widget_type='RadioButtons', label='Mode', orientation='horizontal', choices=['2D', '2D+t'], value='2D'),
         norm_image      = dict(widget_type='CheckBox', text='Normalize Image', value=DEFAULTS['norm_image']),
         scale           = dict(widget_type='FloatSpinBox', label='Scale factor',                min=0.5, max=2, step=0.1,  value=DEFAULTS['scale']),
         subpix          = dict(widget_type='CheckBox', text='Subpixel prediction', value=DEFAULTS['subpix']),
@@ -137,11 +151,11 @@ def plugin_wrapper():
         viewer: napari.Viewer,
         label_head,
         image: napari.layers.Image,
+        image_axes: str,
         label_nn,
         model_type,
         model2d,
         model_folder,
-        mode: str,
         norm_image,
         perc_low,
         perc_high,
@@ -183,22 +197,18 @@ def plugin_wrapper():
         assert image is not None, "Please add an image layer to the viewer!"
         x = get_data(image)
 
-        if mode == "2D":
-            assert x.ndim in {2,3}, "Image must be YX or CYX!" # TODO: parametrize axis order
+        _validate_axes(x, image_axes)
+        x = _prepare_input(x, image_axes)
 
-            if x.ndim==3:
-                x = x.transpose(1,2,0)
-
-            if x.ndim==3 and len(n_tiles)==2:
+        if "T" not in image_axes:
+            if len(n_tiles)==2:
                 n_tiles = n_tiles + (1,)
 
             if norm_image:
                 print("Normalizing image...")
                 x = normalize(x, perc_low, perc_high)
 
-        elif mode == "2D+t":
-            assert x.ndim in {3,4}, "Movie must be TYX or TCYX!" # TODO: parametrize axis order
-
+        else:
             if x.ndim==4 and len(n_tiles)==2:
                 n_tiles = n_tiles + (1,)
             if norm_image:
@@ -220,7 +230,7 @@ def plugin_wrapper():
                 app.process_events()
             return _progress
         actual_prob_thresh = prob_thresh if not use_optimized else None
-        if mode == "2D":
+        if "T" not in image_axes:
             actual_n_tiles = tuple(max(1,s//1024) for s in x.shape) if auto_n_tiles else n_tiles
             pred_points, details = model.predict(x,
                                                 prob_thresh=actual_prob_thresh,
@@ -239,7 +249,7 @@ def plugin_wrapper():
                 details_prob_heatmap = details.heatmap
                 details_flow = details.flow
 
-        elif mode == "2D+t":
+        else:
             actual_n_tiles = tuple(max(1,s//1024) for s in x.shape[1:]) if auto_n_tiles else n_tiles
             pred_points_t, details_t = tuple(zip(*tuple(model.predict(_x,
                                                 prob_thresh=actual_prob_thresh,
@@ -297,16 +307,6 @@ def plugin_wrapper():
         for widget in widgets:
             widget.visible = active
 
-    def widgets_valid(*widgets, valid):
-        for widget in widgets:
-            widget.native.setStyleSheet("" if valid else "background-color: lightcoral")
-
-    def select_model(key):
-        nonlocal model_selected
-        model_selected = key
-        config = model_configs.get(key)
-        print(config)
-
     # allow some widgets to shrink because their size depends on user input
     plugin.image.native.setMinimumWidth(240)
     plugin.model2d.native.setMinimumWidth(240)
@@ -323,15 +323,34 @@ def plugin_wrapper():
             active=not active
         )
         
-    @change_handler(plugin.model_type, init=False)
+    @change_handler(plugin.model_type, init=True)
     def _model_type_change(model_type: Union[str, type]):
         selected = widget_for_modeltype[model_type]
         for w in set((plugin.model2d, plugin.model_folder)) - {selected}:
             w.hide()
         selected.show()
-        # trigger _model_change
-        selected.changed(selected.value)        
+        selected.changed(selected.value)
+
+    @change_handler(plugin.image, init=False)
+    def _image_update(image: napari.layers.Image):
+        global CURR_IMAGE_AXES_CHOICES
+        if image is not None:
+            inp_ndim = get_data(image).ndim
+            assert inp_ndim in (2,3,4), f"Invalid input dimension: {inp_ndim}. Should be 2, 3, or 4."
+            # Update the choices for image_axes
+            CURR_IMAGE_AXES_CHOICES = [c for c in BASE_IMAGE_AXES_CHOICES if len(c) == inp_ndim]
+
+            # Trigger event to update the choices and value of image_axes
+            plugin.image_axes.changed(CURR_IMAGE_AXES_CHOICES)
+            plugin.image_axes.value = CURR_IMAGE_AXES_CHOICES[0]
     
+    @change_handler(plugin.image_axes, init=False)
+    def _image_axes_update(choices: List[str]):
+        with plugin.image_axes.changed.blocked():
+            plugin.image_axes.choices = CURR_IMAGE_AXES_CHOICES
+        if plugin.image_axes.value not in choices:
+            plugin.image_axes.value = CURR_IMAGE_AXES_CHOICES[0]
+
     @change_handler(plugin.norm_image)
     def _norm_image_change(active: bool):
         widgets_inactive(
