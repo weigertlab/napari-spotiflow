@@ -14,20 +14,20 @@ Napari plugin for *Spotiflow*, a deep learning-based, threshold-agnostic, and su
   
 https://github.com/weigertlab/napari-spotiflow/assets/11042162/02940480-daa9-4a21-8cf5-ad73c26c9838
 
-If you use this plugin for your research, please [cite us](https://github.com/weigertlab/spotiflow#Citation).
+If you use this plugin for your research, please [cite us](https://github.com/weigertlab/spotiflow#how-to-cite).
 
 ----------------------------------
 
 # Usage 
 
-1. Open 2d raw image (or open one of our samples eg `File > Open Sample > napari-spotiflow > HybISS`)
-2. Start Plugin `Plugins > napari-spotiflow`
-3. Select model (pretrained or custom trained) and optionally adjust other parameter
+1. Open the image (or open one of our samples, _e.g._ `File > Open Sample > napari-spotiflow > HybISS`)
+2. Start the plugin `Plugins > napari-spotiflow`
+3. Select model (pretrained or custom trained) and optionally adjust any other parameters
 4. Click `run`
 
 ## Supported input formats
-- 2D (YX or YXC)
-- 2D+t (TYX or TYXC)
+- 2D (YX, YXC or CYX)
+- 2D+t (TYX, TYXC or TCYX)
 
 ## Installation
 
