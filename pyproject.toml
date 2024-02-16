@@ -1,5 +1,8 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=40.8.0",
+            "setuptools_scm[toml]>=6.2",
+            "wheel"]
 build-backend = "setuptools.build_meta"
 
-
+[tool.setuptools_scm]
+write_to = "napari_spotiflow/_version.py"

@@ -18,3 +18,5 @@ htmlcov/
 *.zip
 *.so
 *.tfevents.*
+
+napari_spotiflow/_version.py

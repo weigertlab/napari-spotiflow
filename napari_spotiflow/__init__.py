@@ -1,4 +1,4 @@
-__version__ = "0.0.2"
+from ._version import __version__, __version_tuple__
 
 _point_layer2d_default_kwargs = dict(size=8,
                                      symbol='ring',
