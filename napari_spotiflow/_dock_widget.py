@@ -270,22 +270,26 @@ def plugin_wrapper():
                 details_flow = np.stack([det.flow for det in details_t], axis=0)
                                            
         if cnn_output:
-            layers.append((.5*(1+details_flow), dict(name=f'Stereographic flow ({image.name})',
-                                           ), 'image'))
-            layers.append((details_prob_heatmap, dict(name=f'Gaussian heatmap ({image.name})',
-                                           colormap='magma'), 'image'))
+            # layers.append((.5*(1+details_flow), dict(name=f'Stereographic flow ({image.name})',
+            #                                ), 'image'))
+            # layers.append((details_prob_heatmap, dict(name=f'Gaussian heatmap ({image.name})',
+            #                               colormap='magma'), 'image'))
+            viewer.add_image(.5*(1+details_flow), name=f'Stereographic flow ({image.name})')
+            viewer.add_image(details_prob_heatmap, name=f'Gaussian heatmap ({image.name})', colormap='magma')
+
         points_layer_name = f'Spots ({image.name})'
         for l in viewer.layers:
             if l.name == points_layer_name:
                 viewer.layers.remove(l)
-    
-        layers.append((pred_points, dict(name=f'Spots ({image.name})',
-                                             **_point_layer2d_default_kwargs), 'points'))
 
+        # layers.append((pred_points, dict(name=f'Spots ({image.name})',
+        #                                      **_point_layer2d_default_kwargs), 'points'))
+
+        viewer.add_points(pred_points, name=points_layer_name, **_point_layer2d_default_kwargs)
         
         progress_bar.hide()
 
-        return layers
+        return
 
     # # -------------------------------------------------------------------------
     
