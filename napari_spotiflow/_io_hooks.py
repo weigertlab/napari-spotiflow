@@ -11,7 +11,9 @@ import numpy as np
 import pandas as pd
 from napari_builtins.io import napari_get_reader as default_napari_get_reader
 
-COLUMNS = ('z', 'y', 'x')
+COLUMNS_4D = ('t', 'z', 'y', 'x')
+COLUMNS_3D = ('z', 'y', 'x')
+
 
 
 COLUMNS_NAME_MAP_2D = {
@@ -25,12 +27,21 @@ COLUMNS_NAME_MAP_3D = {
     'axis-2' : 'x',
 }
 
+COLUMNS_NAME_MAP_4D = {
+    'axis-0' : 't',
+    'axis-1' : 'z',
+    'axis-2' : 'y',
+    'axis-3' : 'x',
+
+}
 
 def _load_and_parse_csv(path, **kwargs):
     df = pd.read_csv(path, **kwargs)
     df.columns = df.columns.str.lower()
     df.columns = df.columns.str.strip()
-    if 'axis-2' in df.columns:
+    if 'axis-3' in df.columns:
+        df = df.rename(columns = lambda n: COLUMNS_NAME_MAP_4D.get(n,n))
+    elif 'axis-2' in df.columns:
         df = df.rename(columns = lambda n: COLUMNS_NAME_MAP_3D.get(n,n))
     else:
         df = df.rename(columns = lambda n: COLUMNS_NAME_MAP_2D.get(n,n))
@@ -38,7 +49,7 @@ def _load_and_parse_csv(path, **kwargs):
     return df
 
 def _validate_dataframe(df):
-    return set(COLUMNS[-2:]).issubset(set(df.columns))
+    return set(COLUMNS_3D[-2:]).issubset(set(df.columns))
 
 def _validate_path(path: Union[str, Path]):
     """ checks whether path is a valid csv """
@@ -72,12 +83,11 @@ def reader_function(path):
 
     df = _load_and_parse_csv(path)
 
-    # if 3d
-    if set(COLUMNS).issubset(set(df.columns)):
-        # data = df[list(columns)].to_numpy()
+    if set(COLUMNS_4D).issubset(set(df.columns)):
+        data = df[['t','z','y','x']].to_numpy()
+    elif set(COLUMNS_3D).issubset(set(df.columns)):
         data = df[['z','y','x']].to_numpy()
     else:
-        # data = df[list(columns[-2:])].to_numpy()
         data = df[['y','x']].to_numpy()
         
     kwargs = dict(_point_layer2d_default_kwargs)
@@ -91,6 +101,8 @@ def napari_write_points(path, data, meta):
         df = pd.DataFrame(data[:,::-1], columns=['x','y'])
     elif data.shape[-1]==3:
         df = pd.DataFrame(data[:,::-1], columns=['x','y','z'])
+    elif data.shape[-1]==4:
+        df = pd.DataFrame(data[:,::-1], columns=['x','y','z','t'])
     else:
         return None    
     df.to_csv(path, index=False)

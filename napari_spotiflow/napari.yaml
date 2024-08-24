@@ -14,6 +14,9 @@ contributions:
     - id: napari-spotiflow.data.terra_2d
       title: Terra (2D) sample
       python_name: napari_spotiflow._sample_data:_test_image_terra_2d
+    - id: napari-spotiflow.data.synth_3d
+      title: Synthetic (3D) sample
+      python_name: napari_spotiflow._sample_data:_test_image_synth_3d
   sample_data:
     - key: hybiss
       display_name: HybISS
@@ -21,6 +24,9 @@ contributions:
     - key: terra
       display_name: Terra
       command: napari-spotiflow.data.terra_2d
+    - key: synth_3d
+      display_name: Synthetic (3D)
+      command: napari-spotiflow.data.synth_3d
   readers:
     - command: napari-spotiflow.reader
       accepts_directories: false
