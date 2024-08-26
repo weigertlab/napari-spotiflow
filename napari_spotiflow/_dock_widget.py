@@ -31,8 +31,6 @@ def abspath(root, relpath):
         path = root.parent/relpath
     return str(path.absolute())
 
-def get_image_axes_choices(image):
-    return CURR_IMAGE_AXES_CHOICES
 
 def change_handler(*widgets, init=True):
     """Implementation from https://github.com/stardist/stardist-napari/blob/main/stardist_napari/_dock_widget.py
@@ -85,7 +83,10 @@ def plugin_wrapper():
     image_layers = [l for l in napari.current_viewer().layers if isinstance(l, napari.layers.Image)]
     if len(image_layers) > 0:
         ndim_first = image_layers[0].data.ndim
-        CURR_IMAGE_AXES_CHOICES = [c for c in BASE_IMAGE_AXES_CHOICES if len(c) == ndim_first]
+        choice_potential = BASE_IMAGE_AXES_CHOICES if not IS_3D else BASE_IMAGE_AXES_CHOICES_3D
+        CURR_IMAGE_AXES_CHOICES = [c for c in choice_potential if len(c) == ndim_first]
+        if len(CURR_IMAGE_AXES_CHOICES) == 0:
+            CURR_IMAGE_AXES_CHOICES = [""]
     else:
         CURR_IMAGE_AXES_CHOICES = [""]
 
@@ -124,12 +125,11 @@ def plugin_wrapper():
     )
 
     # -------------------------------------------------------------------------
-
     logo = abspath(__file__, 'resources/spotiflow_transp_small.png')
     @magicgui (
         label_head      = dict(widget_type='Label', label=f'<h1><img src="{logo}"></h1>'),
         image           = dict(label='Input Image'),
-        image_axes      = dict(widget_type='RadioButtons', label='Image axes order', orientation='horizontal', choices=get_image_axes_choices, value=CURR_IMAGE_AXES_CHOICES[0]),
+        image_axes      = dict(widget_type='RadioButtons', label='Image axes order', orientation='horizontal', choices=CURR_IMAGE_AXES_CHOICES, value=CURR_IMAGE_AXES_CHOICES[0]),
         label_nn        = dict(widget_type='Label', label='<br><b>Neural Network Prediction:</b>'),
         mode            = dict(widget_type='RadioButtons', label='Mode', orientation='horizontal', choices=['2D', '3D'], value=DEFAULTS["mode"]),
         model_type      = dict(widget_type='RadioButtons', label='Model Type', orientation='horizontal', choices=model_type_choices, value=DEFAULTS['model_type']),
@@ -376,6 +376,7 @@ def plugin_wrapper():
 
     @change_handler(plugin.image_axes, init=False)
     def _image_axes_update(choices: List[str]):
+        global CURR_IMAGE_AXES_CHOICES
         with plugin.image_axes.changed.blocked():
             plugin.image_axes.choices = CURR_IMAGE_AXES_CHOICES
         if plugin.image_axes.value not in choices:
