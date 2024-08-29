@@ -188,7 +188,7 @@ def plugin_wrapper():
             raise RuntimeError("Invalid axes order. If your input is 2D, please set the 2D mode. If your input is 3D, please set the 3D mode.")
         should_use_mps = torch.backends.mps.is_available() and not IS_3D and not os.getenv("PYTORCH_ENABLE_MPS_FALLBACK") == "0"
         DEVICE_STR = "cuda" if torch.cuda.is_available() else "mps" if should_use_mps else "cpu"
-        print(DEVICE_STR)
+        print(f'using device {DEVICE_STR}')
 
         model = get_model(
             model_type,
