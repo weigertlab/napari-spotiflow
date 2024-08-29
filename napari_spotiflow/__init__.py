@@ -4,7 +4,7 @@ _point_layer2d_default_kwargs = dict(size=8,
                                      symbol='ring',
                                      opacity=1,
                                      face_color=[1.,.5,.2],
-                                     edge_color=[1.,.5,.2])
+                                     border_color=[1.,.5,.2])
 
 
 # def sample_data_2d():
