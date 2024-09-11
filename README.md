@@ -10,7 +10,7 @@
 
 # Spotiflow: napari plugin
 
-Napari plugin for *Spotiflow*, a deep learning-based, threshold-agnostic, and subpixel-accurate spot detection method for fluorescence microscopy. The plugin allows using several pre-trained models as well as user-trained ones. For the main repository, see [here](https://github.com/weigertlab/spotiflow). 
+Napari plugin for *Spotiflow*, a deep learning-based, threshold-agnostic, and subpixel-accurate spot detection method for 2D and 3D fluorescence microscopy images. The plugin allows using several pre-trained models as well as user-trained ones. For the main repository, see [here](https://github.com/weigertlab/spotiflow). 
 
 https://github.com/weigertlab/napari-spotiflow/assets/11042162/02940480-daa9-4a21-8cf5-ad73c26c9838
 
@@ -36,6 +36,8 @@ pip install napari-spotiflow
 ## Supported input formats
 - 2D (YX, YXC or CYX)
 - 2D+t (TYX, TYXC or TCYX)
+- 3D (ZYX, ZYXC or CZYX)
+- 3D+t (TZYX, TZYXC or TCZYX)
 
 ## How to cite
 See the [main repository's _How to cite_ section](https://github.com/weigertlab/spotiflow?tab=readme-ov-file#how-to-cite).
