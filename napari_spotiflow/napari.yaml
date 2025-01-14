@@ -6,8 +6,8 @@ contributions:
       python_name: napari_spotiflow._io_hooks:napari_get_reader
       title: open csv data with napari-spotiflow   
     - id: napari-spotiflow.widget
-      python_name: napari_spotiflow._dock_widget:plugin_wrapper
-      title: Spotiflow
+      python_name: napari_spotiflow._predict_widget:SpotiflowDetectionWidget
+      title: Spotiflow (spot detection)
     - id: napari-spotiflow.data.hybiss_2d
       title: HybISS (2D) sample
       python_name: napari_spotiflow._sample_data:_test_image_hybiss_2d

@@ -1,5 +1,19 @@
 import numpy as np
 from typing import Literal
+from napari.utils import progress as napari_progress
+
+_point_layer2d_default_kwargs = dict(size=8,
+                                     symbol='ring',
+                                     opacity=1,
+                                     face_color=[1.,.5,.2],
+                                     border_color=[1.,.5,.2])
+
+_point_layer3d_default_kwargs = dict(size=8,
+                                     symbol='ring',
+                                     opacity=1,
+                                     face_color=[1.,.5,.2],
+                                     border_color=[1.,.5,.2],
+                                     out_of_slice_display=True)
 
 def _validate_axes(img: np.ndarray, axes: Literal["YX", "YXC", "CYX", "TYX", "TYXC", "TCYX", "ZYX", "ZYXC", "CZYX", "ZTYX", "ZTYXC", "ZTCYX"]) -> None:
     assert img.ndim == len(axes), f"Image has {img.ndim} dimensions, but axes has {len(axes)} dimensions"
@@ -37,3 +51,8 @@ def _prepare_input(img: np.ndarray, axes: Literal["YX", "YXC", "CYX", "TYX", "TY
         return img.transpose(0,2,3,4,0)
     else:
         raise ValueError(f"Invalid axes: {axes}")
+
+def _patched_progbar(desc):
+    def _progbar(*args, **kwargs):
+        return napari_progress(*args, desc=desc, **kwargs)
+    return _progbar
