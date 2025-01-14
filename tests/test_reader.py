@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 from napari_spotiflow._io_hooks import reader_function
 
