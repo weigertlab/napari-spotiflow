@@ -8,6 +8,9 @@ contributions:
     - id: napari-spotiflow.widget
       python_name: napari_spotiflow._predict_widget:SpotiflowDetectionWidget
       title: Spotiflow (spot detection)
+    - id: napari-spotiflow.train_widget
+      python_name: napari_spotiflow._train_widget:SpotiflowTrainingWidget
+      title: Spotiflow (training)
     - id: napari-spotiflow.data.hybiss_2d
       title: HybISS (2D) sample
       python_name: napari_spotiflow._sample_data:_test_image_hybiss_2d
@@ -33,4 +36,6 @@ contributions:
       filename_patterns: ["*.csv"]
   widgets:
     - command: napari-spotiflow.widget
-      display_name: Spotiflow widget
+      display_name: Spotiflow (detection)
+    - command: napari-spotiflow.train_widget
+      display_name: Spotiflow (training)
