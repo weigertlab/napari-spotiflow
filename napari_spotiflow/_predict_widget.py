@@ -193,7 +193,7 @@ class SpotiflowDetectionWidget(Container):
         self._mode.changed.connect(self._on_mode_changed)
         self._image.changed.connect(self._on_image_changed)
         self._image_axes.changed.connect(self._on_image_axes_update)
-        self._detect_button.changed.connect(self._detect)
+        self._detect_button.changed.connect(self._safe_detect_wrapper)
 
         self.extend(
             [
@@ -369,8 +369,7 @@ class SpotiflowDetectionWidget(Container):
         )
         return np.asarray(arr)
 
-    def _detect(self, event=None):
-        self._detect_button.enabled = False
+    def _detect(self):
         self._load_model()
         if self._image.value is None:
             raise ValueError("No image layer to process")
@@ -404,19 +403,16 @@ class SpotiflowDetectionWidget(Container):
         }
 
         if "T" not in self._image_axes.value:
-            self._toggle_activity_dock(True)
             spots, details = self._model.predict(
                 img,
                 progress_bar_wrapper=_patched_progbar(desc="Tiled detection"),
                 **spotiflow_predict_kwargs,
             )
-            self._toggle_activity_dock(False)
             if self._cnn_output.value:
                 details_prob_heatmap = details.heatmap
                 if subpix:
                     details_flow = details.flow
         else:
-            self._toggle_activity_dock(True)
             spots_t, details_t = tuple(
                 zip(
                     *tuple(
@@ -433,7 +429,6 @@ class SpotiflowDetectionWidget(Container):
                     )
                 )
             )
-            self._toggle_activity_dock(False)
             spots = tuple(
                 np.concatenate([[i], ps]) for i, ps in enumerate(spots_t) for p in ps
             )
@@ -468,5 +463,15 @@ class SpotiflowDetectionWidget(Container):
             name=f"Spots ({self._image.value.name})",
             **pts_layer_kwargs,
         )
-        self._detect_button.enabled = True
         return
+
+    def _safe_detect_wrapper(self, event=None):
+        self._detect_button.enabled = False
+        self._toggle_activity_dock(True)
+        try:
+            self._detect()
+        except Exception as e:
+            raise e
+        finally:
+            self._toggle_activity_dock(False)
+            self._detect_button.enabled = True
