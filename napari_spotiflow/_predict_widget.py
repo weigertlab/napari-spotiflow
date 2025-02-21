@@ -429,8 +429,9 @@ class SpotiflowDetectionWidget(Container):
                     )
                 )
             )
-            spots = tuple(
-                np.concatenate([[i], ps]) for i, ps in enumerate(spots_t) for p in ps
+            spots = np.concatenate(
+                [np.column_stack((np.full((spots.shape[0], 1), i), spots)) for i, spots in enumerate(spots_t)],
+                axis=0
             )
             if self._cnn_output.value:
                 details_prob_heatmap = np.stack(

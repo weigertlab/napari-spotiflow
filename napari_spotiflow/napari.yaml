@@ -17,6 +17,9 @@ contributions:
     - id: napari-spotiflow.data.synth_3d
       title: Synthetic (3D) sample
       python_name: napari_spotiflow._sample_data:_test_image_synth_3d
+    - id: napari-spotiflow.data.telomeres_2d_t
+      title: Telomeres (2D+t) sample
+      python_name: napari_spotiflow._sample_data:_test_timelapse_telomeres_2d
   sample_data:
     - key: hybiss
       display_name: HybISS
@@ -27,6 +30,9 @@ contributions:
     - key: synth_3d
       display_name: Synthetic (3D)
       command: napari-spotiflow.data.synth_3d
+    - key: telomeres_timelapse
+      display_name: Telomeres (2D+t)
+      command: napari-spotiflow.data.telomeres_2d_t
   readers:
     - command: napari-spotiflow.reader
       accepts_directories: false
