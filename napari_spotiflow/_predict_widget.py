@@ -80,7 +80,7 @@ class SpotiflowDetectionWidget(Container):
         )
         self._label_nn = create_widget(
             widget_type="Label",
-            label="<br><b>Postprocessing:</b>",
+            label="<br><b>Model:</b>",
         )
         self._mode = RadioButtons(
             label="Mode",
