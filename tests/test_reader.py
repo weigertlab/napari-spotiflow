@@ -7,7 +7,7 @@ def test_reader():
     layers = tuple(reader_function(path) for path in paths)
 
     assert not any([lay is None for lay in layers])
-    return layers
+
 
 
 if __name__ == '__main__':
