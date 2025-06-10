@@ -40,7 +40,7 @@ from .utils import (
 LOGO = Path(__file__).parent / "resources" / "spotiflow_transp_small.png"
 
 BASE_IMAGE_AXES_CHOICES = ["YX", "YXC", "CYX", "TYX", "TYXC", "TCYX"]
-BASE_IMAGE_AXES_CHOICES_3D = [
+BASE_IMAGE_AXES_CHOICES_3D = ["CZYX", "TCZYX"]+[
     f"Z{axes}" if "T" not in axes else f"TZ{axes[1:]}"
     for axes in BASE_IMAGE_AXES_CHOICES
 ]
