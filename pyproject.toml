@@ -1,8 +1,57 @@
 [build-system]
-requires = ["setuptools>=40.8.0",
-            "setuptools_scm[toml]>=6.2",
-            "wheel"]
+requires = [
+    "setuptools>=61",
+    "setuptools_scm[toml]>=6.2",
+    "wheel"
+]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "napari-spotiflow"
+description = "Napari plugin for Spotiflow"
+readme = "README.md"
+license = { text = "BSD 3-Clause License" }
+authors = [
+    { name = "Albert Dominguez Mantes", email = "albert.dominguezmantes@epfl.ch" },
+    { name = "Martin Weigert", email = "martin.weigert@epfl.ch" }
+]
+requires-python = ">=3.9, <3.13"
+dependencies = [
+    "spotiflow",
+    "npe2",
+    "napari>=0.5"
+]
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Framework :: napari",
+    "Topic :: Software Development :: Testing",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: BSD License"
+]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/weigertlab/napari-spotiflow/issues"
+"Documentation" = "https://github.com/weigertlab/napari-spotiflow#README.md"
+"Source Code" = "https://github.com/weigertlab/napari-spotiflow"
+"User Support" = "https://github.com/weigertlab/napari-spotiflow/issues"
+
+[project.entry-points."napari.manifest"]
+napari-spotiflow = "napari_spotiflow:napari.yaml"
+
+[tool.setuptools]
+packages = ["napari_spotiflow"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+napari_spotiflow = ["napari.yaml", "resources/*"]
 
 [tool.setuptools_scm]
 write_to = "napari_spotiflow/_version.py"
