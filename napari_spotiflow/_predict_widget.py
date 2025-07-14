@@ -40,7 +40,7 @@ from .utils import (
 LOGO = Path(__file__).parent / "resources" / "spotiflow_transp_small.png"
 
 BASE_IMAGE_AXES_CHOICES = ["YX", "YXC", "CYX", "TYX", "TYXC", "TCYX"]
-BASE_IMAGE_AXES_CHOICES_3D = ["CZYX", "TCZYX"]+[
+BASE_IMAGE_AXES_CHOICES_3D = ["CZYX", "TCZYX"] + [
     f"Z{axes}" if "T" not in axes else f"TZ{axes[1:]}"
     for axes in BASE_IMAGE_AXES_CHOICES
 ]
@@ -284,6 +284,9 @@ class SpotiflowDetectionWidget(Container):
             self._detect_button.enabled = True
 
     def _axes_choice_update(self):
+        # Remember the current user selection
+        current_selection = self._image_axes.value
+
         if self._image.value is None:
             self._curr_image_axes_choices = ("",)
         else:
@@ -304,7 +307,18 @@ class SpotiflowDetectionWidget(Container):
                 else ("",)
             )
         self._image_axes.reset_choices()
-        self._image_axes.value = self._curr_image_axes_choices[0]
+
+        # Try to preserve the user's selection if it's still valid
+        if current_selection in self._curr_image_axes_choices:
+            self._image_axes.value = current_selection
+        else:
+            self._image_axes.value = self._curr_image_axes_choices[0]
+
+    def _on_image_axes_value_update(self, axes: str):
+        if "C" not in axes:  # If no channel axis, set _split_channels to False
+            self._split_channels.value = False
+        else:  # If channel axis is present, ensure _split_channels is True
+            self._split_channels.value = True
 
     def _toggle_activity_dock(self, show=True):
         """
@@ -430,8 +444,11 @@ class SpotiflowDetectionWidget(Container):
                 )
             )
             spots = np.concatenate(
-                [np.column_stack((np.full((spots.shape[0], 1), i), spots)) for i, spots in enumerate(spots_t)],
-                axis=0
+                [
+                    np.column_stack((np.full((spots.shape[0], 1), i), spots))
+                    for i, spots in enumerate(spots_t)
+                ],
+                axis=0,
             )
             if self._cnn_output.value:
                 details_prob_heatmap = np.stack(
