@@ -175,6 +175,11 @@ class SpotiflowDetectionWidget(Container):
             label="Show CNN output",
             value=False,
         )
+        self._split_channels = CheckBox(
+            label="Visualise channels separately",
+            tooltip="Split multi-channel images into separate layers to ensure proper overlay with detected spots. Original image will not be modified.",
+            value=False,
+        )
         self._detect_button = PushButton(label="Detect spots")
 
         # Prettify labels (https://doc.qt.io/qt-5/qsizepolicy.html#Policy-enum)
@@ -218,6 +223,7 @@ class SpotiflowDetectionWidget(Container):
                 self._auto_n_tiles,
                 self._n_tiles,
                 self._cnn_output,
+                self._split_channels,
                 self._detect_button,
             ]
         )
@@ -282,6 +288,9 @@ class SpotiflowDetectionWidget(Container):
             self._detect_button.enabled = False
         else:
             self._detect_button.enabled = True
+
+        # Update the split-channel checkbox when axes change
+        self._on_image_axes_value_update(event)
 
     def _axes_choice_update(self):
         # Remember the current user selection
@@ -393,6 +402,16 @@ class SpotiflowDetectionWidget(Container):
             raise ValueError("2D mode specified, but the loaded model is 3D")
 
         img = self._get_image_data()
+        if self._split_channels.value and "C" in self._image_axes.value:
+            self._viewer.add_image(
+                img,
+                name=[
+                    f"Channel {i}"
+                    for i in range(img.shape[self._image_axes.value.index("C")])
+                ],
+                channel_axis=self._image_axes.value.index("C"),
+            )
+            self._image.value.visible = False
         if self._norm_image.value:
             img = normalize(img, self._perc_low.value, self._perc_high.value)
         if self._subpix.value and not self._model.config.compute_flow:
