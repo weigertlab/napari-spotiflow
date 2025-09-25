@@ -5,7 +5,8 @@
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/napari-spotiflow)](https://pypistats.org/packages/napari-spotiflow)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-spotiflow)](https://napari-hub.org/plugins/napari-spotiflow)
 
-![Logo](https://github.com/weigertlab/napari-spotiflow/raw/main/artwork/spotiflow_logo.png)
+<img src="artwork/spotiflow_logo.png" width="350">
+
 ---
 
 # Spotiflow: napari plugin
