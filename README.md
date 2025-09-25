@@ -3,7 +3,7 @@
 [![Python Version](https://img.shields.io/pypi/pyversions/napari-spotiflow.svg?color=green)](https://python.org)
 [![tests](https://github.com/weigertlab/napari-spotiflow/workflows/tests/badge.svg)](https://github.com/weigertlab/napari-spotiflow/actions)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/napari-spotiflow)](https://pypistats.org/packages/napari-spotiflow)
-[![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-spotiflow)](https://napari-hub.org/plugins/napari-spotiflow)
+![Static Badge](https://img.shields.io/badge/plugin-npe2-blue?link=https://napari.org/stable/plugins/index.html)
 
 <img src="artwork/spotiflow_logo.png" width="350">
 
