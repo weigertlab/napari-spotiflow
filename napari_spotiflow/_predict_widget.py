@@ -40,7 +40,7 @@ from .utils import (
 LOGO = Path(__file__).parent / "resources" / "spotiflow_transp_small.png"
 
 BASE_IMAGE_AXES_CHOICES = ["YX", "YXC", "CYX", "TYX", "TYXC", "TCYX"]
-BASE_IMAGE_AXES_CHOICES_3D = ["CZYX", "TCZYX"]+[
+BASE_IMAGE_AXES_CHOICES_3D = ["CZYX", "TCZYX"] + [
     f"Z{axes}" if "T" not in axes else f"TZ{axes[1:]}"
     for axes in BASE_IMAGE_AXES_CHOICES
 ]
@@ -175,6 +175,11 @@ class SpotiflowDetectionWidget(Container):
             label="Show CNN output",
             value=False,
         )
+        self._split_channels = CheckBox(
+            label="Visualise channels separately",
+            tooltip="Split multi-channel images into separate layers to ensure proper overlay with detected spots. Original image will not be modified.",
+            value=False,
+        )
         self._detect_button = PushButton(label="Detect spots")
 
         # Prettify labels (https://doc.qt.io/qt-5/qsizepolicy.html#Policy-enum)
@@ -218,6 +223,7 @@ class SpotiflowDetectionWidget(Container):
                 self._auto_n_tiles,
                 self._n_tiles,
                 self._cnn_output,
+                self._split_channels,
                 self._detect_button,
             ]
         )
@@ -283,7 +289,13 @@ class SpotiflowDetectionWidget(Container):
         else:
             self._detect_button.enabled = True
 
+        # Update the split-channel checkbox when axes change
+        self._on_image_axes_value_update(event)
+
     def _axes_choice_update(self):
+        # Remember the current user selection
+        current_selection = self._image_axes.value
+
         if self._image.value is None:
             self._curr_image_axes_choices = ("",)
         else:
@@ -304,7 +316,18 @@ class SpotiflowDetectionWidget(Container):
                 else ("",)
             )
         self._image_axes.reset_choices()
-        self._image_axes.value = self._curr_image_axes_choices[0]
+
+        # Try to preserve the user's selection if it's still valid
+        if current_selection in self._curr_image_axes_choices:
+            self._image_axes.value = current_selection
+        else:
+            self._image_axes.value = self._curr_image_axes_choices[0]
+
+    def _on_image_axes_value_update(self, axes: str):
+        if "C" not in axes:  # If no channel axis, set _split_channels to False
+            self._split_channels.value = False
+        else:  # If channel axis is present, ensure _split_channels is True
+            self._split_channels.value = True
 
     def _toggle_activity_dock(self, show=True):
         """
@@ -379,6 +402,16 @@ class SpotiflowDetectionWidget(Container):
             raise ValueError("2D mode specified, but the loaded model is 3D")
 
         img = self._get_image_data()
+        if self._split_channels.value and "C" in self._image_axes.value:
+            self._viewer.add_image(
+                img,
+                name=[
+                    f"Channel {i}"
+                    for i in range(img.shape[self._image_axes.value.index("C")])
+                ],
+                channel_axis=self._image_axes.value.index("C"),
+            )
+            self._image.value.visible = False
         if self._norm_image.value:
             img = normalize(img, self._perc_low.value, self._perc_high.value)
         if self._subpix.value and not self._model.config.compute_flow:
@@ -430,8 +463,11 @@ class SpotiflowDetectionWidget(Container):
                 )
             )
             spots = np.concatenate(
-                [np.column_stack((np.full((spots.shape[0], 1), i), spots)) for i, spots in enumerate(spots_t)],
-                axis=0
+                [
+                    np.column_stack((np.full((spots.shape[0], 1), i), spots))
+                    for i, spots in enumerate(spots_t)
+                ],
+                axis=0,
             )
             if self._cnn_output.value:
                 details_prob_heatmap = np.stack(
