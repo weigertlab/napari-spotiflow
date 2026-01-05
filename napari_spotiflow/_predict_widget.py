@@ -176,8 +176,8 @@ class SpotiflowDetectionWidget(Container):
             value=False,
         )
         self._split_channels = CheckBox(
-            label="Visualise channels separately",
-            tooltip="Split multi-channel images into separate layers to ensure proper overlay with detected spots. Original image will not be modified.",
+            label="Visualize channels separately",
+            tooltip="Split multi-channel images into separate layers to ensure proper overlay with detected spots. The original image will not be modified.",
             value=False,
         )
         self._detect_button = PushButton(label="Detect spots")
@@ -402,16 +402,19 @@ class SpotiflowDetectionWidget(Container):
             raise ValueError("2D mode specified, but the loaded model is 3D")
 
         img = self._get_image_data()
+        
         if self._split_channels.value and "C" in self._image_axes.value:
-            self._viewer.add_image(
-                img,
-                name=[
-                    f"Channel {i}"
-                    for i in range(img.shape[self._image_axes.value.index("C")])
-                ],
-                channel_axis=self._image_axes.value.index("C"),
-            )
-            self._image.value.visible = False
+            _channel_axis_index = self._image_axes.value.index("C")
+            if img.shape[_channel_axis_index] > 1:
+                self._viewer.add_image(
+                    img,
+                    name=[
+                        f"Channel {i}"
+                        for i in range(img.shape[_channel_axis_index])
+                    ],
+                    channel_axis=_channel_axis_index,
+                )
+                self._image.value.visible = False
         if self._norm_image.value:
             img = normalize(img, self._perc_low.value, self._perc_high.value)
         if self._subpix.value and not self._model.config.compute_flow:
