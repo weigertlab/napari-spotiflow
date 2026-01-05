@@ -21,7 +21,7 @@ from magicgui.widgets import (
     LiteralEvalLineEdit,
     PushButton,
     RadioButtons,
-    SpinBox,
+    FloatSpinBox,
     create_widget,
 )
 from napari.utils import progress as napari_progress
@@ -151,12 +151,11 @@ class SpotiflowDetectionWidget(Container):
             step=0.01,
             visible=False,
         )
-        self._min_distance = SpinBox(
+        self._min_distance = FloatSpinBox(
             label="Minimum distance",
-            min=1,
-            max=51,
-            step=1,
-            value=2,
+            min=0.0,
+            step=0.5,
+            value=2.0,
         )
         self._label_adv = create_widget(
             widget_type="Label",
@@ -336,7 +335,7 @@ class SpotiflowDetectionWidget(Container):
                 )
             )
         ):
-            # Do not reload is demanded model is already loaded
+            # Do not reload if demanded model is already loaded
             # This assumes that the model is not changed outside of this widget
             # TODO: keep this or reload anyway?
             return
