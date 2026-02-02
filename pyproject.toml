@@ -19,7 +19,8 @@ requires-python = ">=3.9, <3.13"
 dependencies = [
     "spotiflow",
     "npe2",
-    "napari>=0.5"
+    "napari>=0.5",
+    "torch<2.9.0 ; platform_system == 'Windows'" # PyQt and torch 2.9+ bug on Windows, see https://github.com/pytorch/pytorch/issues/166628
 ]
 dynamic = ["version"]
 classifiers = [
