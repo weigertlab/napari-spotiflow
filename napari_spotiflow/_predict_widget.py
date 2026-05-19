@@ -25,6 +25,7 @@ from magicgui.widgets import (
     create_widget,
 )
 from napari.utils import progress as napari_progress
+from qtpy.QtWidgets import QSizePolicy
 from spotiflow.model import Spotiflow
 from spotiflow.model.pretrained import _REGISTERED, list_registered
 from spotiflow.utils import normalize
@@ -188,7 +189,10 @@ class SpotiflowDetectionWidget(Container):
             self._label_postproc,
             self._label_adv,
         ):
-            w.native.setSizePolicy(1 | 2, 0)
+            w.native.setSizePolicy(
+                QSizePolicy.Policy.MinimumExpanding,
+                QSizePolicy.Policy.Fixed,
+            )
 
         self._opt_thresh.changed.connect(self._on_opt_thresh_changed)
         self._auto_n_tiles.changed.connect(self._on_auto_ntiles_changed)
